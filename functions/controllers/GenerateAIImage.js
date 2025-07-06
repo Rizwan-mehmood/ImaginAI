@@ -24,7 +24,7 @@ export const generateImage = async (req, res, next) => {
 
         const { prompt } = body;
         console.log("Final parsed prompt:", prompt);
-        
+
         if (!prompt) {
             return next(createError(400, "Prompt is required"));
         }
@@ -34,6 +34,7 @@ export const generateImage = async (req, res, next) => {
             "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
             {
                 inputs: prompt,
+                parameters: { num_outputs: 1, num_inference_steps: 10, guidance_scale: 7.5 },
                 options: { wait_for_model: true },
             },
             {
