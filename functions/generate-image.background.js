@@ -1,28 +1,17 @@
-// functions/generateImage.background.js
 import axios from "axios";
-import { createError } from "./error.js";      // adjust path if needed
 import dotenv from "dotenv";
 dotenv.config();
 
 export async function handler(event, context) {
     try {
-        let body = req.body;
+        // 1) Parse the incoming JSON body
+        let body = event.body || "{}";
+        // If it’s single‐quoted or Buffer‐stringified, clean it up:
+        body = body
+            .replace(/^'|'$/g, "")
+            .replace(/'/g, '"');
+        const { prompt } = JSON.parse(body);
 
-        if (Buffer.isBuffer(body)) {
-            body = body.toString();
-        }
-
-        if (typeof body === 'string') {
-            // Convert single-quoted string to valid JSON
-            try {
-                body = JSON.parse(body.replace(/^'|'$/g, '').replace(/'/g, '"'));
-            } catch (parseErr) {
-                return next(createError(400, "Invalid JSON format in request body"));
-            }
-        }
-
-        const { prompt } = body;
-        console.log("Final parsed prompt:", prompt);
         if (!prompt) {
             return {
                 statusCode: 400,
@@ -30,7 +19,9 @@ export async function handler(event, context) {
             };
         }
 
-        // call HF API (same as before)
+        console.log("Final parsed prompt:", prompt);
+
+        // 2) Call Hugging Face
         const hfResponse = await axios.post(
             "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
             { inputs: prompt, options: { wait_for_model: true } },
@@ -43,17 +34,18 @@ export async function handler(event, context) {
             }
         );
 
-        // verify and encode
         const imgBase64 = Buffer.from(hfResponse.data).toString("base64");
         return {
             statusCode: 200,
             body: JSON.stringify({ photo: imgBase64 }),
         };
+
     } catch (err) {
         console.error("Background generateImage error:", err);
+        const message = err.message || "Server error";
         return {
             statusCode: err.status || 500,
-            body: JSON.stringify({ message: err.message || "Server error" }),
+            body: JSON.stringify({ message }),
         };
     }
 }
