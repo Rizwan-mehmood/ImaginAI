@@ -23,16 +23,25 @@ export async function handler(event, context) {
 
         // 2) Call Hugging Face
         const hfResponse = await axios.post(
-            "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
-            { inputs: prompt, options: { wait_for_model: true } },
+            "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-base",
+            {
+                inputs: prompt,
+                parameters: {
+                    num_outputs: 1,
+                    num_inference_steps: 15,
+                    guidance_scale: 7.5
+                },
+                options: { wait_for_model: true }
+            },
             {
                 headers: {
                     Authorization: `Bearer ${process.env.HUGGINGFACE_TOKEN}`,
-                    Accept: "image/png",
+                    Accept: "image/png"
                 },
-                responseType: "arraybuffer",
+                responseType: "arraybuffer"
             }
         );
+
 
         const imgBase64 = Buffer.from(hfResponse.data).toString("base64");
         return {
