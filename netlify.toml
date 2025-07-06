@@ -1,0 +1,7 @@
+[build]
+  command = "npm install && npm run build:client && npm run build:functions"
+  publish = "client/build"
+  functions = "functions"
+
+[functions]
+  node_bundler = "esbuild"

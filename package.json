@@ -1,0 +1,9 @@
+{
+    "scripts": {
+        "build:client": "cd client && npm install && npm run build",
+        "build:functions": "cd functions && npm install"
+    },
+    "resolutions": {
+        "axios": "1.10.0"
+    }
+}
