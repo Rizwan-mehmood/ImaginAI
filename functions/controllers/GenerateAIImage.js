@@ -7,7 +7,24 @@ dotenv.config();
 
 export const generateImage = async (req, res, next) => {
     try {
-        const { prompt } = req.body;
+        let body = req.body;
+
+        if (Buffer.isBuffer(body)) {
+            body = body.toString();
+        }
+
+        if (typeof body === 'string') {
+            // Convert single-quoted string to valid JSON
+            try {
+                body = JSON.parse(body.replace(/^'|'$/g, '').replace(/'/g, '"'));
+            } catch (parseErr) {
+                return next(createError(400, "Invalid JSON format in request body"));
+            }
+        }
+
+        const { prompt } = body;
+        console.log("Final parsed prompt:", prompt);
+        
         if (!prompt) {
             return next(createError(400, "Prompt is required"));
         }
