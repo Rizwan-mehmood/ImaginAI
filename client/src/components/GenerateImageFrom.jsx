@@ -59,6 +59,7 @@ const GenerateImageFrom = ({ post, setPost, createPostLoading, setGenerateImageL
     const [error, setError] = useState("");
     const generateIamgeFun = async () => {
         setGenerateImageLoading(true);
+        console.log(post.prompt);
         await GenerateAIIamge({ prompt: post.prompt }).then((res) => {
             setPost({ ...post, photo: `data:image/jpeg;base64,${res?.data?.photo}` });
             setGenerateImageLoading(false);
